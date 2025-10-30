@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peekablu ESP32 Flasher</title>
+    <title>Peekablu Flasher</title>
     <script type="module" src="https://unpkg.com/esp-web-tools@11/dist/web/install-button.js?module"></script>
     <style>
         * {
@@ -13,147 +13,188 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: #1a1a1a;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 600px;
             width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 40px;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 50px;
-            color: white;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e9ecef;
         }
 
         h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
         }
 
         .subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
+            font-size: 0.875em;
+            color: #6c757d;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 24px;
+            font-size: 0.875em;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .status-value {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6c757d;
+        }
+
+        .status-dot.connected {
+            background: #28a745;
+        }
+
+        .status-dot.disconnected {
+            background: #dc3545;
+        }
+
+        .firmware-select {
+            margin-bottom: 32px;
+        }
+
+        .select-label {
+            display: block;
+            font-size: 0.875em;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #495057;
         }
 
         .firmware-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+            display: flex;
+            gap: 12px;
         }
 
-        .firmware-card {
+        .firmware-btn {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-size: 0.875em;
         }
 
-        .firmware-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        .firmware-btn:hover {
+            border-color: #495057;
         }
 
-        .firmware-card.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
+        .firmware-btn.selected {
+            border-color: #007bff;
+            background: #f0f8ff;
         }
 
-        .firmware-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
+        .firmware-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
         }
 
-        .firmware-title {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .firmware-description {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .selection-indicator {
-            display: none;
-            color: #667eea;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .firmware-card.selected .selection-indicator {
-            display: block;
+        .firmware-desc {
+            color: #6c757d;
+            font-size: 0.8125em;
         }
 
         .install-section {
-            text-align: center;
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .install-message {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         esp-web-install-button {
-            --esp-tools-button-color: #667eea;
-            --esp-tools-button-text-color: white;
+            display: block;
+            width: 100%;
         }
 
         esp-web-install-button button {
-            font-size: 1.2em;
-            padding: 15px 40px;
-            border-radius: 30px;
+            width: 100%;
+            padding: 14px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9375em;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.2s ease;
         }
 
         esp-web-install-button button:hover {
-            transform: scale(1.05);
+            background: #0056b3;
         }
 
-        .browser-warning {
+        .info-box {
             background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.8125em;
             color: #856404;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #ffc107;
         }
 
         footer {
             text-align: center;
-            color: white;
-            margin-top: 40px;
-            opacity: 0.8;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.8125em;
+            color: #6c757d;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2em;
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                gap: 12px;
             }
 
             .firmware-options {
-                grid-template-columns: 1fr;
+                flex-direction: column;
             }
         }
     </style>
@@ -161,65 +202,107 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎯 Peekablu</h1>
-            <p class="subtitle">ESP32 Firmware Flasher for Arduino Nano ESP32</p>
+            <h1>Peekablu Flasher</h1>
+            <p class="subtitle">ESP32 Firmware Installation</p>
         </header>
 
-        <div class="firmware-options">
-            <div class="firmware-card" id="poster-card" onclick="selectFirmware('poster')">
-                <div class="firmware-icon">📊</div>
-                <h2 class="firmware-title">Poster Firmware</h2>
-                <p class="firmware-description">
-                    Optimized firmware for display and poster functionality. Perfect for digital signage and information displays.
-                </p>
-                <div class="selection-indicator">✓ Selected</div>
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="connection-dot"></div>
+                <span class="status-label">Status:</span>
+                <span class="status-value" id="connection-status">Disconnected</span>
             </div>
+            <div class="status-item" id="chip-info-container" style="display: none;">
+                <span class="status-label">Chip:</span>
+                <span class="status-value" id="chip-info">—</span>
+            </div>
+        </div>
 
-            <div class="firmware-card" id="flasher-card" onclick="selectFirmware('flasher')">
-                <div class="firmware-icon">⚡</div>
-                <h2 class="firmware-title">Flasher Firmware</h2>
-                <p class="firmware-description">
-                    Advanced firmware with flashing capabilities. Ideal for rapid deployment and firmware management.
-                </p>
-                <div class="selection-indicator">✓ Selected</div>
+        <div class="firmware-select">
+            <label class="select-label">Select Firmware</label>
+            <div class="firmware-options">
+                <div class="firmware-btn selected" id="poster-btn" onclick="selectFirmware('poster')">
+                    <div class="firmware-name">Poster</div>
+                    <div class="firmware-desc">Display firmware</div>
+                </div>
+                <div class="firmware-btn" id="flasher-btn" onclick="selectFirmware('flasher')">
+                    <div class="firmware-name">Flasher</div>
+                    <div class="firmware-desc">Advanced mode</div>
+                </div>
             </div>
         </div>
 
         <div class="install-section">
-            <p class="install-message">
-                <strong>Ready to flash?</strong><br>
-                Select a firmware option above, then click the install button below.
-            </p>
-
             <esp-web-install-button id="install-button">
-                <button slot="activate">Install Firmware</button>
+                <button slot="activate">Connect & Install</button>
             </esp-web-install-button>
+        </div>
 
-            <div class="browser-warning">
-                <strong>⚠️ Browser Requirement:</strong> This flasher only works in Chrome, Edge, or Opera browsers.
-            </div>
+        <div class="info-box">
+            Requires Chrome, Edge, or Opera browser
         </div>
 
         <footer>
-            <p>Powered by ESP Web Tools | Arduino Nano ESP32 (ESP32-S3)</p>
+            Powered by ESP Web Tools
         </footer>
     </div>
 
     <script>
-        let selectedFirmware = 'poster'; // Default selection
+        let selectedFirmware = 'poster';
 
         function selectFirmware(type) {
             selectedFirmware = type;
 
-            // Update card selection
-            document.getElementById('poster-card').classList.remove('selected');
-            document.getElementById('flasher-card').classList.remove('selected');
-            document.getElementById(`${type}-card`).classList.add('selected');
+            document.getElementById('poster-btn').classList.remove('selected');
+            document.getElementById('flasher-btn').classList.remove('selected');
+            document.getElementById(`${type}-btn`).classList.add('selected');
 
-            // Update install button manifest
             const manifestUrl = `firmware-${type}/manifest.json`;
             document.getElementById('install-button').setAttribute('manifest', manifestUrl);
         }
+
+        // Listen for ESP Web Tools events
+        const installButton = document.getElementById('install-button');
+
+        installButton.addEventListener('state-changed', (e) => {
+            const state = e.detail.state;
+            const dot = document.getElementById('connection-dot');
+            const status = document.getElementById('connection-status');
+
+            switch(state) {
+                case 'CONNECTED':
+                    dot.className = 'status-dot connected';
+                    status.textContent = 'Connected';
+                    break;
+                case 'INSTALLING':
+                    dot.className = 'status-dot connected';
+                    status.textContent = 'Installing...';
+                    break;
+                case 'INSTALLED':
+                    dot.className = 'status-dot connected';
+                    status.textContent = 'Installed';
+                    break;
+                case 'ERROR':
+                    dot.className = 'status-dot disconnected';
+                    status.textContent = 'Error';
+                    break;
+                default:
+                    dot.className = 'status-dot';
+                    status.textContent = 'Disconnected';
+            }
+        });
+
+        installButton.addEventListener('connected', (e) => {
+            const chipInfo = e.detail.chipInfo;
+            if (chipInfo) {
+                const chipElement = document.getElementById('chip-info');
+                const chipContainer = document.getElementById('chip-info-container');
+
+                // Display chip family
+                chipElement.textContent = chipInfo.chipFamily || 'ESP32';
+                chipContainer.style.display = 'flex';
+            }
+        });
 
         // Set default firmware on page load
         window.addEventListener('DOMContentLoaded', () => {
