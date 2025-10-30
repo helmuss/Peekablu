@@ -122,7 +122,7 @@ Each manifest.json is configured with the following memory offsets for Arduino N
 
 | File | Offset (Hex) | Offset (Decimal) |
 |------|-------------|------------------|
-| `bootloader.bin` | 0x1000 | 4096 |
+| `bootloader.bin` | 0x0 | 0 |
 | `partitions.bin` | 0x8000 | 32768 |
 | `boot_app0.bin` | 0xE000 | 57344 |
 | `app.bin` | 0x10000 | 65536 |

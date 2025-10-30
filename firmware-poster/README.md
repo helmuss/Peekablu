@@ -10,7 +10,7 @@ To make this firmware flashable, you need to upload the following 4 binary files
 - **Location in Arduino IDE:** After compilation, find at:
   - **Windows:** `%TEMP%\arduino\sketches\<sketch_name>\bootloader.bin`
   - **macOS/Linux:** `/tmp/arduino/sketches/<sketch_name>/bootloader.bin`
-- **Offset:** 0x1000 (4096 bytes)
+- **Offset:** 0x0 (0 bytes) - Arduino Nano ESP32 specific
 
 ### 2. `partitions.bin`
 - **Location in Arduino IDE:** After compilation, find at:
