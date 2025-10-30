@@ -220,7 +220,7 @@
             </div>
         </div>
 
-        <div class="firmware-select">
+        <div class="firmware-select" style="display: none;">
             <label class="select-label">Select Firmware</label>
             <div class="firmware-options">
                 <div class="firmware-btn selected" id="poster-btn" onclick="selectFirmware('poster')">
@@ -241,7 +241,7 @@
         </div>
 
         <div class="info-box">
-            Requires Chrome, Edge, or Opera browser
+            <strong>Important:</strong> Close Arduino IDE Serial Monitor before flashing. Requires Chrome, Edge, or Opera browser.
         </div>
 
         <footer>
@@ -334,7 +334,14 @@
 
         installButton.addEventListener('error', (e) => {
             console.error('Error event:', e.detail);
-            updateStatus('Error', false);
+            const errorMsg = e.detail?.message || e.detail?.error || 'Unknown error';
+            console.error('Error details:', errorMsg);
+
+            if (errorMsg.includes('Failed to open serial port')) {
+                updateStatus('Port in use - close other apps', false);
+            } else {
+                updateStatus('Error: ' + errorMsg.substring(0, 20), false);
+            }
         });
 
         // Debug: Log all clicks on the install button
@@ -344,7 +351,7 @@
 
         // Set default firmware on page load
         window.addEventListener('DOMContentLoaded', () => {
-            selectFirmware('poster');
+            // Don't call selectFirmware - let the manifest attribute in HTML handle it
             updateStatus('Ready', null);
 
             // Log button element for debugging
