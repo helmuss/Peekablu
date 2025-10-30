@@ -212,7 +212,7 @@
             <div class="status-item">
                 <div class="status-dot" id="connection-dot"></div>
                 <span class="status-label">Status:</span>
-                <span class="status-value" id="connection-status">Disconnected</span>
+                <span class="status-value" id="connection-status">Ready</span>
             </div>
             <div class="status-item" id="chip-info-container" style="display: none;">
                 <span class="status-label">Chip:</span>
@@ -263,52 +263,84 @@
             document.getElementById('install-button').setAttribute('manifest', manifestUrl);
         }
 
-        // Listen for ESP Web Tools events
-        const installButton = document.getElementById('install-button');
-
-        installButton.addEventListener('state-changed', (e) => {
-            const state = e.detail.state;
+        function updateStatus(statusText, isConnected) {
             const dot = document.getElementById('connection-dot');
             const status = document.getElementById('connection-status');
 
+            status.textContent = statusText;
+
+            if (isConnected === true) {
+                dot.className = 'status-dot connected';
+            } else if (isConnected === false) {
+                dot.className = 'status-dot disconnected';
+            } else {
+                dot.className = 'status-dot';
+            }
+        }
+
+        // Listen for ESP Web Tools events
+        const installButton = document.getElementById('install-button');
+
+        // Handle all possible events from ESP Web Tools
+        installButton.addEventListener('state-changed', (e) => {
+            console.log('State changed:', e.detail);
+            const state = e.detail.state;
+
             switch(state) {
                 case 'CONNECTED':
-                    dot.className = 'status-dot connected';
-                    status.textContent = 'Connected';
+                    updateStatus('Connected', true);
+                    break;
+                case 'PREPARING':
+                    updateStatus('Preparing...', null);
                     break;
                 case 'INSTALLING':
-                    dot.className = 'status-dot connected';
-                    status.textContent = 'Installing...';
+                    updateStatus('Installing...', true);
+                    break;
+                case 'LOGS':
+                    updateStatus('Reading logs...', true);
                     break;
                 case 'INSTALLED':
-                    dot.className = 'status-dot connected';
-                    status.textContent = 'Installed';
+                    updateStatus('Installed', true);
                     break;
                 case 'ERROR':
-                    dot.className = 'status-dot disconnected';
-                    status.textContent = 'Error';
+                    updateStatus('Error', false);
                     break;
                 default:
-                    dot.className = 'status-dot';
-                    status.textContent = 'Disconnected';
+                    updateStatus('Ready', null);
             }
         });
 
         installButton.addEventListener('connected', (e) => {
-            const chipInfo = e.detail.chipInfo;
+            console.log('Connected event:', e.detail);
+            updateStatus('Connected', true);
+
+            const chipInfo = e.detail?.info || e.detail?.chipInfo || e.detail;
             if (chipInfo) {
                 const chipElement = document.getElementById('chip-info');
                 const chipContainer = document.getElementById('chip-info-container');
 
                 // Display chip family
-                chipElement.textContent = chipInfo.chipFamily || 'ESP32';
+                const chipName = chipInfo.chipFamily || chipInfo.chip || 'ESP32';
+                chipElement.textContent = chipName;
                 chipContainer.style.display = 'flex';
             }
+        });
+
+        installButton.addEventListener('disconnected', (e) => {
+            console.log('Disconnected event:', e.detail);
+            updateStatus('Disconnected', false);
+            document.getElementById('chip-info-container').style.display = 'none';
+        });
+
+        installButton.addEventListener('error', (e) => {
+            console.error('Error event:', e.detail);
+            updateStatus('Error', false);
         });
 
         // Set default firmware on page load
         window.addEventListener('DOMContentLoaded', () => {
             selectFirmware('poster');
+            updateStatus('Ready', null);
         });
     </script>
 </body>
